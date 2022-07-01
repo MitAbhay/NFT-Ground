@@ -2,9 +2,11 @@ import React from "react";
 import { useAddress, useDisconnect, useMetamask } from "@thirdweb-dev/react";
 
 function NFTDrop() {
+  
   const connectWithMetamask = useMetamask();
   const address = useAddress();
   const disconnect = useDisconnect();
+
   console.log(address);
   return (
     <div className="flex flex-col h-screen lg:grid lg:grid-cols-10">
