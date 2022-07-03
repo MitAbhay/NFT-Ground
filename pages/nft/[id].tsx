@@ -1,14 +1,20 @@
 import React from "react";
 import { useAddress, useDisconnect, useMetamask } from "@thirdweb-dev/react";
 import { GetServerSideProps } from "next";
-import { sanityclient } from "../../sanity";
+import { sanityclient, urlFor } from "../../sanity";
+import { Collection } from "../../typings";
+import Link from "next/link";
 
-function NFTDrop() {
+interface Props {
+  collection: Collection[];
+}
+
+function NFTDrop({ collection }: Props) {
   const connectWithMetamask = useMetamask();
   const address = useAddress();
   const disconnect = useDisconnect();
 
-  console.log(address);
+  // console.log(collection);
   return (
     <div className="flex flex-col h-screen lg:grid lg:grid-cols-10">
       {/* LEFT */}
@@ -17,15 +23,15 @@ function NFTDrop() {
           <div className="bg-gradient-to-br from-yellow-200 to-orange-500 p-2 rounded-xl">
             <img
               className="w-44 object-cover rounded-xl lg:w-72 "
-              src="https://i.guim.co.uk/img/media/ef8492feb3715ed4de705727d9f513c168a8b196/37_0_1125_675/master/1125.jpg?width=1200&height=1200&quality=85&auto=format&fit=crop&s=d456a2af571d980d8b2985472c262b31"
+              src={urlFor(collection.previewImage).url()}
               alt="nft"
             />
           </div>
           <div className="">
-            <h1 className="text-white font-bold text-xl p-2">NFT Apes</h1>
-            <h2 className="text-white text-sm">
-              A collection for your NFT drops
-            </h2>
+            <h1 className="text-white font-bold text-xl p-2">
+              {collection.nftcollection}
+            </h1>
+            <h2 className="text-white text-sm">{collection.description}</h2>
           </div>
         </div>
       </div>
@@ -33,13 +39,15 @@ function NFTDrop() {
       <div className="flex flex-col lg:col-span-6 justify-between text-center">
         {/* HEADER */}
         <header className="flex items-center justify-between mx-8 mt-4">
-          <h1 className="text-gray-500 w-52 sm:w-72">
-            The{" "}
-            <span className="font-extrabold underline decoration-pink-600/50">
-              Ground{" "}
-            </span>
-            for NFT Marketplace
-          </h1>
+          <Link href="/">
+            <h1 className="text-gray-500 w-52 sm:w-72">
+              The{" "}
+              <span className="font-extrabold underline decoration-pink-600/50">
+                Ground{" "}
+              </span>
+              for NFT Marketplace
+            </h1>
+          </Link>
           <button
             onClick={address ? disconnect : connectWithMetamask}
             className="hover:bg-yellow-600 rounded-full bg-yellow-500 px-4 py-1 cursor-pointer text-white text-xs lg:text-sm"
@@ -61,11 +69,11 @@ function NFTDrop() {
         <div className="m-4 items-center flex flex-col mt-10">
           <img
             className="w-80  object-cover shadow-sm"
-            src="https://cdn.mos.cms.futurecdn.net/8AsM5fpkAi5tDaPZpXheWQ.jpg"
+            src={urlFor(collection.mainImage).url()}
             alt="nft"
           />
           <h1 className="my-4 text-3xl font-bold lg:text-5xl lg:font-extrabold">
-            The NFT Ground Club | NFT Drop
+            {collection.title}
           </h1>
           <p className="text-green-500 p-2">13 / 25 NFT Claimed</p>
         </div>
@@ -79,16 +87,48 @@ function NFTDrop() {
 
 export default NFTDrop;
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const query = `
-
+  *[_type == "collection" && slug.current == $id][0]{
+    _id,
+    title,
+    address,
+    description,
+    nftcollection,
+    mainImage{
+      asset
+    },
+    previewImage{
+      asset
+    },
+    slug{
+      current
+    },
+    creator->{
+      _id,
+      name,
+      address,
+      slug{
+        current
+      },
+    }
+  }
   `;
 
-  const collections = await sanityclient.fetch(query);
+  const collection = await sanityclient.fetch(query, {
+    id: params?.id,
+  });
 
+  // console.log(params);
+
+  if (!collection) {
+    return {
+      notFound: true,
+    };
+  }
   return {
     props: {
-      collections,
+      collection,
     },
   };
 };
