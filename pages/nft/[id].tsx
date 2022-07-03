@@ -1,8 +1,9 @@
 import React from "react";
 import { useAddress, useDisconnect, useMetamask } from "@thirdweb-dev/react";
+import { GetServerSideProps } from "next";
+import { sanityclient } from "../../sanity";
 
 function NFTDrop() {
-  
   const connectWithMetamask = useMetamask();
   const address = useAddress();
   const disconnect = useDisconnect();
@@ -48,9 +49,12 @@ function NFTDrop() {
         </header>
 
         {address && (
-          <p className = "text-green-600">
-            You are logged in with Wallet <span className="font-bold">{address.substring(0, 5)}...
-            {address.substring(address.length - 5)}</span>
+          <p className="text-green-600">
+            You are logged in with Wallet{" "}
+            <span className="font-bold">
+              {address.substring(0, 5)}...
+              {address.substring(address.length - 5)}
+            </span>
           </p>
         )}
         {/* content */}
@@ -74,3 +78,17 @@ function NFTDrop() {
 }
 
 export default NFTDrop;
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const query = `
+
+  `;
+
+  const collections = await sanityclient.fetch(query);
+
+  return {
+    props: {
+      collections,
+    },
+  };
+};
