@@ -1,18 +1,57 @@
-import React from "react";
-import { useAddress, useDisconnect, useMetamask } from "@thirdweb-dev/react";
+import React, { useEffect, useState } from "react";
+import {
+  useAddress,
+  useDisconnect,
+  useMetamask,
+  useNFTDrop,
+} from "@thirdweb-dev/react";
 import { GetServerSideProps } from "next";
 import { sanityclient, urlFor } from "../../sanity";
 import { Collection } from "../../typings";
 import Link from "next/link";
+import { BigNumber } from "ethers";
 
 interface Props {
   collection: Collection[];
 }
 
 function NFTDrop({ collection }: Props) {
+  const [loading, setloading] = useState<boolean>(true);
+  const [claimedsupply, setclaimedsupply] = useState<number>(0);
+  const [totalsupply, settotalsupply] = useState<BigNumber>();
+  const [priceInEth, setpriceInEth] = useState<string>();
+  const nftdrop = useNFTDrop(collection.address);
   const connectWithMetamask = useMetamask();
   const address = useAddress();
   const disconnect = useDisconnect();
+
+  useEffect(() => {
+    if (!nftdrop) return;
+    const nftprice = async () => {
+      const claimedcondition = await nftdrop.claimConditions.getAll();
+      setpriceInEth(claimedcondition?.[0].currencyMetadata.displayValue);
+    };
+
+    nftprice();
+  }, [nftdrop]);
+
+  useEffect(() => {
+    if (!nftdrop) return;
+
+    const nftdropdata = async () => {
+      const claimednft = await nftdrop.getAllClaimed();
+      const totalnft = await nftdrop.totalSupply();
+
+      setclaimedsupply(claimednft.length);
+      settotalsupply(totalnft);
+
+      setloading(false);
+    };
+
+    nftdropdata();
+  }, [nftdrop]);
+
+  const mintnft = async () => {};
 
   // console.log(collection);
   return (
@@ -75,10 +114,30 @@ function NFTDrop({ collection }: Props) {
           <h1 className="my-4 text-3xl font-bold lg:text-5xl lg:font-extrabold">
             {collection.title}
           </h1>
-          <p className="text-green-500 p-2">13 / 25 NFT Claimed</p>
+          {loading ? (
+            <p className="text-green-500 p-2">Loading supplies...</p>
+          ) : (
+            <p className="text-green-500 p-2">
+              {claimedsupply} / {totalsupply?.toString()} NFT Claimed
+            </p>
+          )}
         </div>
-        <button className="bg-pink-800 px-4 py-2 mx-2 mb-4 rounded-full text-white text-lg">
-          Mint NFT (0.02 ETH)
+        <button
+          onClick={mintnft}
+          disabled={
+            !address || loading || claimedsupply == totalsupply?.toNumber()
+          }
+          className="bg-pink-800 px-4 py-2 mx-2 mb-4 rounded-full text-white text-lg disabled:bg-gray-400"
+        >
+          {loading ? (
+            <>Loading</>
+          ) : totalsupply?.toNumber() === claimedsupply ? (
+            <>Sold Out</>
+          ) : !address ? (
+            <>Login to Mint</>
+          ) : (
+            <span> Mint NFT ({priceInEth} ETH)</span>
+          )}
         </button>
       </div>
     </div>
