@@ -51,7 +51,29 @@ function NFTDrop({ collection }: Props) {
     nftdropdata();
   }, [nftdrop]);
 
-  const mintnft = async () => {};
+  const mintnft = async () => {
+    if (!nftdrop || !address) return;
+    setloading(true);
+    const uniqueQuantity = 1; // NFT Quantity to be claimedsupply
+
+    nftdrop
+      .claimTo(address, uniqueQuantity)
+      .then(async (transaction) => {
+        const reciept = transaction[0].receipt;
+        const claimedtokenID = transaction[0].id;
+        const claimedNFT = await transaction[0].data();
+
+        console.log(reciept);
+        console.log(claimedtokenID);
+        console.log(claimedNFT);
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setloading(false);
+      });
+  };
 
   // console.log(collection);
   return (
