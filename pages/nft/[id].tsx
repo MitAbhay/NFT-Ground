@@ -16,11 +16,13 @@ interface Props {
 }
 
 function NFTDrop({ collection }: Props) {
+  const Collection: any = collection;
+  // console.log(Collection);
   const [loading, setloading] = useState<boolean>(true);
   const [claimedsupply, setclaimedsupply] = useState<number>(0);
   const [totalsupply, settotalsupply] = useState<BigNumber>();
   const [priceInEth, setpriceInEth] = useState<string>();
-  const nftdrop = useNFTDrop(collection.address);
+  const nftdrop = useNFTDrop(Collection.address);
   const connectWithMetamask = useMetamask();
   const address = useAddress();
   const disconnect = useDisconnect();
@@ -63,9 +65,9 @@ function NFTDrop({ collection }: Props) {
         const claimedtokenID = transaction[0].id;
         const claimedNFT = await transaction[0].data();
 
-        console.log(reciept);
-        console.log(claimedtokenID);
-        console.log(claimedNFT);
+        // console.log(reciept);
+        // console.log(claimedtokenID);
+        // console.log(claimedNFT);
       })
       .catch((error) => {
         console.error(error);
@@ -84,15 +86,15 @@ function NFTDrop({ collection }: Props) {
           <div className="bg-gradient-to-br from-yellow-200 to-orange-500 p-2 rounded-xl">
             <img
               className="w-44 object-cover rounded-xl lg:w-72 "
-              src={urlFor(collection.previewImage).url()}
+              src={urlFor(Collection.previewImage).url()}
               alt="nft"
             />
           </div>
           <div className="">
             <h1 className="text-white font-bold text-xl p-2">
-              {collection.nftcollection}
+              {Collection.nftcollection}
             </h1>
-            <h2 className="text-white text-sm">{collection.description}</h2>
+            <h2 className="text-white text-sm">{Collection.description}</h2>
           </div>
         </div>
       </div>
@@ -130,11 +132,11 @@ function NFTDrop({ collection }: Props) {
         <div className="m-4 items-center flex flex-col mt-10">
           <img
             className="w-80  object-cover shadow-sm"
-            src={urlFor(collection.mainImage).url()}
+            src={urlFor(Collection.mainImage).url()}
             alt="nft"
           />
           <h1 className="my-4 text-3xl font-bold lg:text-5xl lg:font-extrabold">
-            {collection.title}
+            {Collection.title}
           </h1>
           {loading ? (
             <p className="text-green-500 p-2">Loading supplies...</p>
