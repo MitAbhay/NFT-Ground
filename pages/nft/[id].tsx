@@ -10,6 +10,7 @@ import { sanityclient, urlFor } from "../../sanity";
 import { Collection } from "../../typings";
 import Link from "next/link";
 import { BigNumber } from "ethers";
+import toast, { Toaster } from "react-hot-toast";
 
 interface Props {
   collection: Collection[];
@@ -56,6 +57,16 @@ function NFTDrop({ collection }: Props) {
   const mintnft = async () => {
     if (!nftdrop || !address) return;
     setloading(true);
+    const notification = toast.loading("Minting NFT...", {
+      style: {
+        background: "black",
+        color: "white",
+        fontSize: "1rem",
+        fontWeight: "bold",
+        textAlign: "center",
+        padding: "1rem",
+      },
+    });
     const uniqueQuantity = 1; // NFT Quantity to be claimedsupply
 
     nftdrop
@@ -64,16 +75,40 @@ function NFTDrop({ collection }: Props) {
         const reciept = transaction[0].receipt;
         const claimedtokenID = transaction[0].id;
         const claimedNFT = await transaction[0].data();
-
+        toast("Congrats... You Successfully Minted a NFT", {
+          icon: "👏",
+          duration: 8000,
+          style: {
+            background: "green",
+            color: "white",
+            fontSize: "1rem",
+            fontWeight: "bold",
+            textAlign: "center",
+            padding: "1rem",
+          },
+        });
         // console.log(reciept);
         // console.log(claimedtokenID);
         // console.log(claimedNFT);
       })
       .catch((error) => {
         console.error(error);
+        toast("Whoops... Something went wrong", {
+          icon: "⚠️",
+          duration: 8000,
+          style: {
+            background: "red",
+            color: "white",
+            fontSize: "1rem",
+            fontWeight: "bold",
+            textAlign: "center",
+            padding: "1rem",
+          },
+        });
       })
       .finally(() => {
         setloading(false);
+        toast.dismiss(notification);
       });
   };
 
@@ -81,6 +116,7 @@ function NFTDrop({ collection }: Props) {
   return (
     <div className="flex flex-col h-screen lg:grid lg:grid-cols-10">
       {/* LEFT */}
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="lg:col-span-4 bg-gradient-to-br from-cyan-600 to-red-800 items-center">
         <div className="flex flex-col items-center text-center justify-center py-2 lg:min-h-screen">
           <div className="bg-gradient-to-br from-yellow-200 to-orange-500 p-2 rounded-xl">
@@ -103,7 +139,7 @@ function NFTDrop({ collection }: Props) {
         {/* HEADER */}
         <header className="flex items-center justify-between mx-8 mt-4">
           <Link href="/">
-            <h1 className="text-gray-500 w-52 sm:w-72">
+            <h1 className="text-gray-500 w-52 sm:w-72 cursor-pointer">
               The{" "}
               <span className="font-extrabold underline decoration-pink-600/50">
                 Ground{" "}
