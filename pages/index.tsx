@@ -1,6 +1,5 @@
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
 import Link from "next/link";
 import { sanityclient, urlFor } from "../sanity";
 import { Collection } from "../typings";
@@ -14,24 +13,27 @@ const Home: NextPage<Props> = ({ collections }) => {
     <div className="flex min-h-screen flex-col max-w-7xl mx-auto items-center justify-center py-2 bg-gray-200">
       <Head>
         <title>NFT Ground</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/nft-icon.png" />
       </Head>
-      <h1 className="text-6xl font-bold text-red-500 p-2">
+      <h1 className="text-6xl font-bold text-red-500 p-2 my-2">
         NFT GROUND for Beginners
       </h1>
       <main className="p-10 shadow-xl">
         <div className="grid space-x-3 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {collections.map((collection) => (
-            <Link key = {collection.title} href={`/nft/${collection.slug.current}`}>
+            <Link
+              key={collection.title}
+              href={`/nft/${collection.slug.current}`}
+            >
               <div className="flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-105">
                 <img
                   className="h-94 w-60 object-cover rounded-2xl"
                   src={urlFor(collection.previewImage).url()}
                   alt=""
                 />
-                <div className="mt-2">
+                <div className="mt-2 items-center text-center">
                   <h1 className="text-3xl">{collection.title}</h1>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-gray-500 mt-1">
                     {collection.description}
                   </p>
                 </div>
